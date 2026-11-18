@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction History - JobGuard AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand">JobGuard <span>AI</span></div>
+
+        <div class="nav-links">
+            <a href="/">Job Detection</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/history" class="active">History</a>
+        </div>
+    </nav>
+
+    <main class="history-container">
+
+        <section class="dashboard-header">
+            <p class="eyebrow">PREDICTION RECORDS</p>
+            <h1>Prediction History</h1>
+            <p>Review previously analyzed job postings.</p>
+        </section>
+
+        <section class="dashboard-panel">
+
+            <div class="history-heading">
+                <div class="panel-heading">
+                    <h2>Recent Predictions</h2>
+                    <p>{{ predictions|length }} prediction records found.</p>
+                </div>
+
+                {% if predictions %}
+                <form action="{{ url_for('clear_history') }}" method="POST"
+                      onsubmit="return confirm('Are you sure you want to clear all prediction history?');">
+                    <button type="submit" class="clear-btn">
+                        Clear History
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+            {% if predictions %}
+
+            <div class="table-wrapper">
+                <table class="comparison-table history-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Job Title</th>
+                            <th>Prediction</th>
+                            <th>Fraud Probability</th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for item in predictions %}
+                        <tr>
+                            <td>{{ item["id"] }}</td>
+
+                            <td>{{ item["job_title"] }}</td>
+
+                            <td>
+                                {% if item["prediction"] == "Potentially Fraudulent" %}
+                                    <span class="history-status fraud-status">
+                                        Potentially Fraudulent
+                                    </span>
+                                {% else %}
+                                    <span class="history-status genuine-status">
+                                        Likely Genuine
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ "%.2f"|format(item["fraud_probability"]) }}%</td>
+
+                            <td>{{ item["created_at"] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="empty-history">
+                <div class="empty-icon">↗</div>
+                <h2>No predictions yet</h2>
+                <p>Your analyzed job postings will appear here.</p>
+                <a href="/" class="submit-btn history-link">
+                    Analyze a Job Posting
+                </a>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    <footer>
+        Fake Job Posting Detector · Machine Learning Project
+    </footer>
+
+</body>
+</html>

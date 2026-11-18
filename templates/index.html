@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Job Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="brand">JobGuard <span>AI</span></div>
+        <div class="nav-links">
+            <a href="/" class="active">Job Detection</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/history">History</a>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <section class="hero">
+            <h1>Is this job <span>genuine</span> or fake?</h1>
+            <p>Analyze employment listings using machine learning and identify potentially fraudulent opportunities.</p>
+        </section>
+
+        <form action="/predict" method="POST" class="job-form">
+
+            <div class="section-heading">
+                <h2>Job Information</h2>
+                <p>Enter the details of the job posting.</p>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="field full">
+                    <label>Job Title *</label>
+                    <input type="text" name="title" placeholder="e.g. Software Developer" required>
+                </div>
+
+                <div class="field">
+                    <label>Location</label>
+                    <input type="text" name="location" placeholder="e.g. New Delhi, India">
+                </div>
+
+                <div class="field">
+                    <label>Department</label>
+                    <input type="text" name="department" placeholder="e.g. Engineering">
+                </div>
+
+                <div class="field">
+                    <label>Salary Range</label>
+                    <input type="text" name="salary_range" placeholder="e.g. 30000-50000">
+                </div>
+
+                <div class="field">
+                    <label>Employment Type</label>
+                    <select name="employment_type">
+                        <option value="">Select type</option>
+                        <option>Full-time</option>
+                        <option>Part-time</option>
+                        <option>Contract</option>
+                        <option>Temporary</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Required Experience</label>
+                    <input type="text" name="required_experience" placeholder="e.g. Entry level">
+                </div>
+
+                <div class="field">
+                    <label>Required Education</label>
+                    <input type="text" name="required_education" placeholder="e.g. Bachelor's Degree">
+                </div>
+
+                <div class="field">
+                    <label>Industry</label>
+                    <input type="text" name="industry" placeholder="e.g. Information Technology">
+                </div>
+
+                <div class="field">
+                    <label>Job Function</label>
+                    <input type="text" name="function" placeholder="e.g. Engineering">
+                </div>
+
+                <div class="field full">
+                    <label>Company Profile</label>
+                    <textarea name="company_profile" rows="3" placeholder="Describe the company..."></textarea>
+                </div>
+
+                <div class="field full">
+                    <label>Job Description *</label>
+                    <textarea name="description" rows="5" placeholder="Enter the complete job description..."
+                        required></textarea>
+                </div>
+
+                <div class="field full">
+                    <label>Requirements</label>
+                    <textarea name="requirements" rows="4" placeholder="Enter job requirements..."></textarea>
+                </div>
+
+                <div class="field full">
+                    <label>Benefits</label>
+                    <textarea name="benefits" rows="3" placeholder="Enter the benefits offered..."></textarea>
+                </div>
+
+            </div>
+
+            <div class="section-heading additional-heading">
+                <h2>Additional Information</h2>
+                <p>Select the attributes mentioned in the job posting.</p>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label>Telecommuting</label>
+                    <select name="telecommuting">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Company Logo Available</label>
+                    <select name="has_company_logo">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Screening Questions Available</label>
+                    <select name="has_questions">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Analyze Job Posting
+            </button>
+
+            <p class="disclaimer">
+                This tool provides a machine-learning-based risk assessment.
+                It does not guarantee whether a job posting is genuine or fraudulent.
+            </p>
+
+        </form>
+
+    </main>
+
+    <footer>
+        Fake Job Posting Detector
+    </footer>
+
+</body>
+
+</html>

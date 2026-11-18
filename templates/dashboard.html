@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - JobGuard AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="brand">JobGuard <span>AI</span></div>
+        <div class="nav-links">
+            <a href="/">Job Detection</a>
+            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="/history">History</a>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+
+        <section class="dashboard-header">
+            <p class="eyebrow">PROJECT ANALYTICS</p>
+            <h1>Machine Learning Dashboard</h1>
+            <p>Dataset insights and model performance overview.</p>
+        </section>
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <p>Total Job Postings</p>
+                <h2>{{ "{:,}".format(total_jobs) }}</h2>
+                <span>Dataset records</span>
+            </div>
+
+            <div class="stat-card">
+                <p>Genuine Postings</p>
+                <h2 class="safe-text">{{ "{:,}".format(genuine_jobs) }}</h2>
+                <span>{{ genuine_percentage }}% of dataset</span>
+            </div>
+
+            <div class="stat-card">
+                <p>Fraudulent Postings</p>
+                <h2 class="danger-text">{{ "{:,}".format(fraudulent_jobs) }}</h2>
+                <span>{{ fraud_percentage }}% of dataset</span>
+            </div>
+
+            <div class="stat-card">
+                <p>Best Performing Model</p>
+                <h2 class="model-name">{{ best_model["Model"] }}</h2>
+                <span>Highest F1-score</span>
+            </div>
+
+        </section>
+
+        <section class="dashboard-panel">
+
+            <div class="panel-heading">
+                <h2>Dataset Distribution</h2>
+                <p>Distribution of genuine and fraudulent job postings.</p>
+            </div>
+
+            <div class="distribution-bar">
+                <div class="genuine-bar" data-percentage="{{ genuine_percentage }}"></div>
+                <div class="fraud-bar" data-percentage="{{ fraud_percentage }}"></div>
+            </div>
+
+            <div class="legend">
+                <span><i class="legend-dot genuine-dot"></i> Genuine: {{ genuine_jobs }}</span>
+                <span><i class="legend-dot fraud-dot"></i> Fraudulent: {{ fraudulent_jobs }}</span>
+            </div>
+
+        </section>
+        <section class="dashboard-panel chart-panel">
+            <div class="panel-heading">
+                <h2>Fraud Distribution Chart</h2>
+                <p>Genuine versus fraudulent job postings.</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </section>
+
+        <section class="dashboard-panel">
+
+            <div class="panel-heading">
+                <h2>Model Performance Comparison</h2>
+                <p>Evaluation results from the held-out test dataset.</p>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Accuracy</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1 Score</th>
+                            <th>ROC-AUC</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for model in comparison %}
+                        <tr>
+                            <td>{{ model["Model"] }}</td>
+                            <td>{{ "%.2f"|format(model["Accuracy"] * 100) }}%</td>
+                            <td>{{ "%.2f"|format(model["Precision"] * 100) }}%</td>
+                            <td>{{ "%.2f"|format(model["Recall"] * 100) }}%</td>
+                            <td>
+                                <strong>{{ "%.2f"|format(model["F1 Score"] * 100) }}%</strong>
+                            </td>
+                            <td>{{ "%.2f"|format(model["ROC-AUC"] * 100) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+        <section class="dashboard-panel chart-panel">
+            <div class="panel-heading">
+                <h2>Model Performance Visualization</h2>
+                <p>Comparison of precision, recall and F1-score.</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="modelChart"></canvas>
+            </div>
+        </section>
+        <section class="dashboard-panel best-model-panel">
+
+            <div class="panel-heading">
+                <h2>Selected Model</h2>
+                <p>Model selected using the highest fraud-class F1-score.</p>
+            </div>
+
+            <div class="best-model-content">
+                <div>
+                    <span class="best-model-label">Selected Algorithm</span>
+                    <h2>{{ best_model["Model"] }}</h2>
+                </div>
+
+                <div class="best-score">
+                    <span>F1 Score</span>
+                    <strong>{{ "%.2f"|format(best_model["F1 Score"] * 100) }}%</strong>
+                </div>
+            </div>
+
+        </section>
+
+        <p class="dashboard-note">
+            Metrics are based on the project's current dataset split and model evaluation.
+            Performance on new job postings may differ.
+        </p>
+
+    </main>
+
+    <script>
+        document.querySelectorAll(".fraud-bar[data-percentage]").forEach((bar) => {
+            const percentage = Number(bar.dataset.percentage);
+            if (Number.isFinite(percentage)) {
+                bar.style.width = `${Math.max(0, Math.min(100, percentage))}%`;
+            }
+        });
+    </script>
+
+    <footer>
+        Fake Job Posting Detector
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const distributionCanvas = document.getElementById("distributionChart");
+
+            if (distributionCanvas) {
+                new Chart(distributionCanvas, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Genuine", "Fraudulent"],
+                        datasets: [{
+                            data: [{{ genuine_jobs }}, {{ fraudulent_jobs }}],
+                            backgroundColor: ["#20a568", "#dc4b4b"],
+                            borderWidth: 0
+                        }]
+                },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: "bottom"
+                            }
+                        }
+                    }
+                });
+            }
+
+            const modelRows = Array.from(document.querySelectorAll(".comparison-table tbody tr"));
+
+            if (modelRows.length > 0) {
+                const modelLabels = modelRows.map(function (row) {
+                    return row.cells[0].textContent.trim();
+                });
+                const modelPrecision = modelRows.map(function (row) {
+                    return Number.parseFloat(row.cells[2].textContent) / 100;
+                });
+                const modelRecall = modelRows.map(function (row) {
+                    return Number.parseFloat(row.cells[3].textContent) / 100;
+                });
+                const modelF1 = modelRows.map(function (row) {
+                    return Number.parseFloat(row.cells[4].textContent) / 100;
+                });
+                const modelChartCanvas = document.getElementById("modelChart");
+
+                if (modelChartCanvas) {
+                    new Chart(modelChartCanvas, {
+                        type: "bar",
+                        data: {
+                            labels: modelLabels,
+                            datasets: [
+                                {
+                                    label: "F1 Score",
+                                    data: modelF1,
+                                    backgroundColor: "#315fbd"
+                                },
+                                {
+                                    label: "Precision",
+                                    data: modelPrecision,
+                                    backgroundColor: "#20a568"
+                                },
+                                {
+                                    label: "Recall",
+                                    data: modelRecall,
+                                    backgroundColor: "#e5a33d"
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 1
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+
+
+</body>
+
+</html>

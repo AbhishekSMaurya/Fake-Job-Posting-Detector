@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result - JobGuard AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="brand">JobGuard <span>AI</span></div>
+        <div class="nav-label">Analysis Result</div>
+    </nav>
+
+    <main class="result-container">
+
+        <div class="result-card">
+
+            <p class="eyebrow">MACHINE LEARNING ANALYSIS</p>
+
+            {% if prediction == 1 %}
+            <div class="result-icon danger">!</div>
+            <h1 class="danger-text">Potentially Fraudulent</h1>
+            <p class="result-description">
+                The model has identified patterns associated with fraudulent job postings.
+                Verify the employer and job details carefully.
+            </p>
+            {% else %}
+            <div class="result-icon safe">✓</div>
+            <h1 class="safe-text">Likely Genuine</h1>
+            <p class="result-description">
+                The model has classified this posting as likely genuine.
+                Continue to verify the employer before sharing personal information.
+            </p>
+            {% endif %}
+
+            <div class="score-section">
+                <p>Model Fraud Probability</p>
+                <div class="score">{{ fraud_percentage }}%</div>
+
+                <div class="progress-track">
+                    <div class="progress-fill {% if prediction == 1 %}danger-fill{% else %}safe-fill{% endif %}"
+                        data-width="{{ fraud_percentage }}">
+                    </div>
+                </div>
+
+                <p class="risk-label">Risk classification: {{ risk_level }}</p>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const fill = document.querySelector('.progress-fill');
+                        if (fill) {
+                            fill.style.width = fill.dataset.width + '%';
+                        }
+                    });
+                </script>
+            </div>
+
+            <div class="insights-section">
+
+                <h2>Job Posting Insights</h2>
+
+                <p class="insights-description">
+                    These checks identify missing information that may deserve further verification.
+                    They do not establish whether a job is fraudulent.
+                </p>
+
+                <ul class="insights-list">
+                    {% for insight in insights %}
+                    <li>
+                        <span class="insight-icon">!</span>
+                        {{ insight }}
+                    </li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+            <p class="disclaimer">
+                The percentage represents the model's estimated fraud probability,
+                not a guarantee of actual fraud.
+            </p>
+
+            <a href="/" class="submit-btn back-btn">
+                Analyze Another Job
+            </a>
+
+        </div>
+
+    </main>
+
+    <footer>
+        Fake Job Posting Detector · Machine Learning Project
+    </footer>
+
+</body>
+
+</html>
